@@ -1,0 +1,8 @@
+## Author: Nick Lozon
+## Interface: 33000
+## Title: EPGPWaitlist
+## Description: Advanced waitlist addon for EPGP.
+## Version: 1.0 Beta1
+
+embeds.xml
+EPGPWaitlist.lua
