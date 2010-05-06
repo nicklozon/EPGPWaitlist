@@ -107,7 +107,7 @@ function EPGPWaitlist:AddPlayer(name)
 		name = EPGPWaitlist:GetAltsMain(name)
 		-- Check that the main is in the guild
 		if not EPGPWaitlist:IsGuildMember(name) then
-			SendChatMessage(name .. " is not in the guild. Check that the spelling is correct in your public note.", "WHISPER", nil, name);
+			SendChatMessage(EPGPWaitlist:capitalize(name) .. " is not in the guild. Check that the spelling is correct in your public note.", "WHISPER", nil, name);
 			EPGPWaitlist:Print(EPGPWaitlist:capitalize(name) .." requested to be on the waitlist, but is not in the guild.")
 			return false
 		end 
@@ -424,8 +424,8 @@ function EPGPWaitlist:RaidRosterUpdateEventHandler()
 	for i = 1, MAX_RAID_MEMBERS, 1 do	
 		local playerName = GetRaidRosterInfo(i)
 		
-		-- No player found at that index or player is not a guild member.
-		if not playerName or not EPGPWaitlist:IsGuildMember(name) then
+		-- Player exists for that raid spot and the player is a guild member
+		if playerName and EPGPWaitlist:IsGuildMember(playerName) then
 			playerName = playerName:lower()
 			-- Player is an alt, remove their main from waitlist and add their main to the raidRoster
 			if EPGPWaitlist:IsAlt(playerName) then
