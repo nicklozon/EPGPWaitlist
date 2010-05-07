@@ -92,6 +92,7 @@ EPGPWaitlist["guildRoster"] = {} -- Contains tables of note, rank and online sta
 -- Parameters:	args (name of player)
 function EPGPWaitlist:AddPlayer(name)
 	name = name:lower()
+	msgName = name:lower()
 	
 	-- Check this player is in the guild
 	if not EPGPWaitlist:IsGuildMember(name) then
@@ -127,7 +128,7 @@ function EPGPWaitlist:AddPlayer(name)
 	
 	-- Add player
 	EPGPWaitlist.players[name] = EPGPWaitlist.Player(name, onlineStatus) -- Creates a new player object
-	SendChatMessage("You have been added to the waitlist.", "WHISPER", nil, name);
+	SendChatMessage(EPGPWaitlist:capitalize(name) .. " has been added to the waitlist.", "WHISPER", nil, msgName);
 	EPGPWaitlist:Print(EPGPWaitlist:capitalize(name) .. " has been added to the waitlist.")
 end
 
@@ -162,7 +163,7 @@ end
 -- Desc:		Checks if the player is an alt
 function EPGPWaitlist:IsAlt(name)
 	-- Make sure the player is in the guild first
-	if EPGPWaitlist.guildRoster[name][2] == "Alt" then
+	if EPGPWaitlist.guildRoster[name][1] == "Alt" then
 		return true
 	end
 	
@@ -202,16 +203,16 @@ end
 --				When the name parameter is not an alt.
 function EPGPWaitlist:GetAltsMain(altName)
 	-- Checks if alt is in the guild
-	assert(EPGPWaitlist.guildRoster[altName], EPGPWaitlist.capitalize(altName) .. " is not in the guild.")
+	assert(EPGPWaitlist.guildRoster[altName], EPGPWaitlist:capitalize(altName) .. " is not in the guild.")
 	
 	-- Checks if the player is an alt
-	assert(EPGPWaitlist:IsAlt(altName), EPGPWaitlist.capitalize(note) .. " is not an alt.")
+	assert(EPGPWaitlist:IsAlt(altName), EPGPWaitlist:capitalize(altName) .. " is not an alt.")
 	
 	-- Get the main player's name
 	local note = EPGPWaitlist.guildRoster[altName][2]:lower()
 	
 	-- Checks if the main player is in the guild
-	assert(EPGPWaitlist.guildRoster[note], EPGPWaitlist.capitalize(note) .. " is not in the guild.")
+	assert(EPGPWaitlist.guildRoster[note], EPGPWaitlist:capitalize(note) .. " is not in the guild.")
 	
 	return note
 end
@@ -425,15 +426,17 @@ function EPGPWaitlist:RaidRosterUpdateEventHandler()
 		local playerName = GetRaidRosterInfo(i)
 		
 		-- Player exists for that raid spot and the player is a guild member
-		if playerName and EPGPWaitlist:IsGuildMember(playerName) then
+		if type(playerName) == "string" then
 			playerName = playerName:lower()
-			-- Player is an alt, remove their main from waitlist and add their main to the raidRoster
-			if EPGPWaitlist:IsAlt(playerName) then
-				EPGPWaitlist.raidRoster[EPGPWaitlist:GetAltsMain(playerName)] = true
-				EPGPWaitlist.players[EPGPWaitlist:GetAltsMain(playerName)] = nil -- remove main from list if they exist
-			else
-				EPGPWaitlist.raidRoster[playerName] = true
-				EPGPWaitlist.players[playerName] = nil -- remove from list if they exist
+			if EPGPWaitlist:IsGuildMember(playerName) then
+				-- Player is an alt, remove their main from waitlist and add their main to the raidRoster
+				if EPGPWaitlist:IsAlt(playerName) then
+					EPGPWaitlist.raidRoster[EPGPWaitlist:GetAltsMain(playerName)] = true
+					EPGPWaitlist.players[EPGPWaitlist:GetAltsMain(playerName)] = nil -- remove main from list if they exist
+				else
+					EPGPWaitlist.raidRoster[playerName] = true
+					EPGPWaitlist.players[playerName] = nil -- remove from list if they exist
+				end
 			end
 		end
 	end
