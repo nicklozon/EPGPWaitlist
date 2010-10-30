@@ -38,7 +38,6 @@ do
 	-- Return the new object
 	function EPGPWaitlist:Player(name, onlineStatus)
 		-- TODO: Check if player is in the guild
-		-- if EPGPWaitlist:waitlist:IsGuildMember(name)
 		
 		if type(name) ~= "string" or name == "" then
 			error("Invalid player name: " .. name)

@@ -7,7 +7,7 @@ do
 	
 		-- Loop through every member, online and offline
 		for i = 1, GetNumGuildMembers(true), 1 do
-			local name, rank, _, _, _, _, _, note, online = GetGuildRosterInfo(i)
+			local name, _, rank, _, _, _, _, note, online = GetGuildRosterInfo(i)
 			name = name:lower()
 			
 			-- Save the player's rank and officer note to the ranks table
@@ -21,18 +21,14 @@ do
 					EPGPWaitlist.waitlist:UpdatePlayerStatus(name, time)
 				end
 			-- Player is on an alt and on waitlist
-			elseif rank == "Alt" and EPGPWaitlist.waitlist:IsWaitlisted(note:lower()) and online then
+			elseif EPGPWaitlist.config:IsAltRank(rank) and EPGPWaitlist.waitlist:IsWaitlisted(note:lower()) and online then
 				EPGPWaitlist.waitlist:UpdatePlayerStatus(name:lower(), time, true, true)
 			end
 		end
 	end
 	
 	local function IsAlt(self, name)
-		if players[name][1] == "Alt" then
-			return true
-		end
-		
-		return false
+		return EPGPWaitlist.config:IsAltRank(players[name][1])
 	end
 	
 	local function IsGuildMember(self, name)

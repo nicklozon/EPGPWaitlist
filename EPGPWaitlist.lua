@@ -1,11 +1,11 @@
 -- Create addon as Ace3, AceConsole and AceEvent
 EPGPWaitlist = LibStub("AceAddon-3.0"):NewAddon("EPGPWaitlist", "AceConsole-3.0", "AceEvent-3.0")
 do
-    local waitlist, guildlist, raidlist
+    local waitlist, guildlist, raidlist, config
     
     function EPGPWaitlist:OnInitialize()
             -- Register the slash command
-            EPGPWaitlist:RegisterChatCommand("wlp", "SlashCommandHandler")
+            EPGPWaitlist:RegisterChatCommand("ewl", "SlashCommandHandler")
             
             -- Register event handlers
             EPGPWaitlist:RegisterEvent("CHAT_MSG_WHISPER", "WhisperEventHandler")
@@ -16,19 +16,21 @@ do
             waitlist = EPGPWaitlist:Waitlist()
             guildlist = EPGPWaitlist:Guildlist()
             raidlist = EPGPWaitlist:Raidlist()
+            config = EPGPWaitlist:Config()
             
             -- Make the objects accessible externally
             EPGPWaitlist['waitlist'] = waitlist
             EPGPWaitlist['guildlist'] = guildlist
             EPGPWaitlist['raidlist'] = raidlist
+            EPGPWaitlist['config'] = config
     end
     
     function EPGPWaitlist:OnEnable()
             -- Register callback with EPGP for Mass EP Awards
-            EPGP.RegisterCallback(EPGPWaitlist, "MassEPAward")
+            EPGP.RegisterCallback(self, "MassEPAward")
             
             -- Since the addon was just enabled, update the Guild and raid roster tables
-            guildlist.GuildRosterUpdate()
+            guildlist:GuildRosterUpdate()
             raidlist:RaidRosterUpdate() -- Depends on guildRoster being current 
             
             EPGPWaitlist:Print("EPGPWaitlist loaded!")
@@ -49,7 +51,6 @@ do
                     waitlist:AddPlayer(name)
             elseif msg == "waitlist remove" then
                     waitlist:RemovePlayer(name)
-                    --zomg((^&(*&*)) -- wtf is this?
             end
     end
 
@@ -81,13 +82,19 @@ do
             local cmd, args = input:match("([^ ]+) ?(.*)") 
             
             if cmd == "add" then
-                    waitlist:AddPlayer(args)
+                waitlist:AddPlayer(args)
             elseif cmd == "remove" then
-                    waitlist:RemovePlayer(args)
+                waitlist:RemovePlayer(args)
             elseif cmd == "removeall" then
-                    waitlist:RemoveAll()
+                waitlist:RemoveAll()
             elseif cmd == "list" then
-                    waitlist:List()
+                waitlist:List()
+            elseif cmd == "addaltrank" then
+                config:AddAltRank(args)
+            elseif cmd == "removealtrank" then
+                config:RemoveAltRank(args)
+            else
+                EPGPWaitlist:Print("Usage: /ewl {add, remove, removeall, list, addaltrank, removealtrank}")
             end
     end	
 end
