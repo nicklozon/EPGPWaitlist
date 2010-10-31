@@ -19,7 +19,7 @@ do
 			-- offlinePeriods array
 		if self.online == false then
 			local duration = time - self.lastOnline
-			if duration > 300 then
+			if duration > EPGPWaitlist.config.offlineTimeout then
 				table.insert(self.offlinePeriods, {lastOnline, time, duration})
 			end
 		end

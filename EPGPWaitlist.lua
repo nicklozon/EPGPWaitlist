@@ -7,11 +7,6 @@ do
             -- Register the slash command
             EPGPWaitlist:RegisterChatCommand("ewl", "SlashCommandHandler")
             
-            -- Register event handlers
-            EPGPWaitlist:RegisterEvent("CHAT_MSG_WHISPER", "WhisperEventHandler")
-            EPGPWaitlist:RegisterEvent("GUILD_ROSTER_UPDATE", "GuildRosterUpdateEventHandler")
-            EPGPWaitlist:RegisterEvent("RAID_ROSTER_UPDATE", "RaidRosterUpdateEventHandler")
-            
             -- Create the list objects
             waitlist = EPGPWaitlist:Waitlist()
             guildlist = EPGPWaitlist:Guildlist()
@@ -26,12 +21,22 @@ do
     end
     
     function EPGPWaitlist:OnEnable()
+            -- Register event handlers
+            EPGPWaitlist:RegisterEvent("CHAT_MSG_WHISPER", "WhisperEventHandler")
+            EPGPWaitlist:RegisterEvent("GUILD_ROSTER_UPDATE", "GuildRosterUpdateEventHandler")
+            EPGPWaitlist:RegisterEvent("RAID_ROSTER_UPDATE", "RaidRosterUpdateEventHandler")
+            
             -- Register callback with EPGP for Mass EP Awards
             EPGP.RegisterCallback(self, "MassEPAward")
             
             -- Since the addon was just enabled, update the Guild and raid roster tables
             guildlist:GuildRosterUpdate()
-            raidlist:RaidRosterUpdate() -- Depends on guildRoster being current 
+            raidlist:RaidRosterUpdate() -- Depends on guildRoster being current
+            
+            -- Load stored waitlisted players
+            for idx,player in ipairs(config.waitlistedPlayers) do
+                waitlist:AddPlayer(player)
+            end
             
             EPGPWaitlist:Print("EPGPWaitlist loaded!")
     end
@@ -47,10 +52,17 @@ do
             name = name:lower()
             msg = msg:lower()
             
+            if(msg == "waitlist add" or msg == "waitlist remove") then
+                if(GetNumRaidMembers() == 0) then
+                        SendChatMessage("There is currently no raid in progress.", "WHISPER", nil, name);
+                        return
+                end
+            end
+            
             if msg == "waitlist add" then
-                    waitlist:AddPlayer(name)
+                    waitlist:AddPlayer(name, true)
             elseif msg == "waitlist remove" then
-                    waitlist:RemovePlayer(name)
+                    waitlist:RemovePlayer(name, true)
             end
     end
 
@@ -59,7 +71,11 @@ do
     end
     
     function EPGPWaitlist:RaidRosterUpdateEventHandler()
+        if(GetNumRaidMembers() > 0) then
             raidlist:RaidRosterUpdate()
+        else -- Not in a raid group, wipe waitlist
+            waitlist:RemoveAll()
+        end
     end
     
     function EPGPWaitlist:Capitalize(word)
@@ -93,8 +109,10 @@ do
                 config:AddAltRank(args)
             elseif cmd == "removealtrank" then
                 config:RemoveAltRank(args)
+            elseif cmd == "offlinetimeout" then
+                config:SetOfflineTimeout(args)
             else
-                EPGPWaitlist:Print("Usage: /ewl {add, remove, removeall, list, addaltrank, removealtrank}")
+                EPGPWaitlist:Print("Usage: /ewl {add, remove, removeall, list, addaltrank, removealtrank, offlinetimeout}")
             end
     end	
 end

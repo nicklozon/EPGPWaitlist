@@ -1,13 +1,19 @@
 do
 	local players = {}
 	
-	local function AddPlayer(self, name)
+	local function AddPlayer(self, name, whispered)
+		if(GetNumRaidMembers() == 0) then
+                    EPGPWaitlist:Print("You must be in a raid to have a waitlist.")
+                    return
+		end
 		name = name:lower()
 		msgName = name:lower()
 		
 		-- Check this player is in the guild
 		if not EPGPWaitlist.guildlist:IsGuildMember(name) then
-			SendChatMessage("This player is not in the guild. Your alts and main must be in the guild to use the waitlist.", "WHISPER", nil, name);
+			if(whispered) then
+				SendChatMessage("This player is not in the guild. Your alts and main must be in the guild to use the waitlist.", "WHISPER", nil, name);
+			end
 			EPGPWaitlist:Print(EPGPWaitlist:Capitalize(name) .." requested to be on the waitlist, but is not in the guild.")
 			return false
 		end
@@ -19,7 +25,9 @@ do
 			name = EPGPWaitlist.guildlist:GetAltsMain(name)
 			-- Check that the main is in the guild
 			if not EPGPWaitlist.guildlist:IsGuildMember(name) then
-				SendChatMessage(EPGPWaitlist:Capitalize(name) .. " is not in the guild. Check that the spelling is correct in your public note.", "WHISPER", nil, name);
+				if(whispered) then
+					SendChatMessage(EPGPWaitlist:Capitalize(name) .. " is not in the guild. Check that the spelling is correct in your public note.", "WHISPER", nil, name);
+				end
 				EPGPWaitlist:Print(EPGPWaitlist:Capitalize(name) .." requested to be on the waitlist, but is not in the guild.")
 				return false
 			end 
@@ -27,23 +35,45 @@ do
 		
 		-- Check if player is already on waitlist
 		if self:IsWaitlisted(name) then
-			SendChatMessage(EPGPWaitlist:Capitalize(name) .. " is already on the waitlist.", "WHISPER", nil, name);
+			if(whispered) then
+				SendChatMessage(EPGPWaitlist:Capitalize(name) .. " is already on the waitlist.", "WHISPER", nil, name)
+			end
 			EPGPWaitlist:Print(EPGPWaitlist:Capitalize(name) .." is already on the waitlist.")
 			return false
 		-- Check if this player is in the raid
 		elseif EPGPWaitlist.raidlist:IsInRaid(name) then
-			SendChatMessage("You are in the raid. You may not be on the waitlist while in the raid.", "WHISPER", nil, name);
+			if(whispered) then
+				SendChatMessage("You are in the raid. You may not be on the waitlist while in the raid.", "WHISPER", nil, name)
+			end
 			EPGPWaitlist:Print(EPGPWaitlist:Capitalize(name) .." is already in the raid.")
 			return false
 		end
 		
 		-- Add player
 		players[name] = EPGPWaitlist:Player(name, onlineStatus) -- Creates a new player object
-		SendChatMessage(EPGPWaitlist:Capitalize(name) .. " has been added to the waitlist.", "WHISPER", nil, msgName);
 		EPGPWaitlist:Print(EPGPWaitlist:Capitalize(name) .. " has been added to the waitlist.")
+		
+		-- Add player to save variables if it doesnt exist already
+		local bool = false
+		for idx,player in ipairs(EPGPWaitlist.config.waitlistedPlayers, name) do
+			if(player == name) then
+				bool = true
+			end
+		end
+		if( not bool ) then
+			tinsert(EPGPWaitlist.config.waitlistedPlayers, name) -- Add player to saved variables
+		end
+		
+		if(whispered) then
+			SendChatMessage(EPGPWaitlist:Capitalize(name) .. " has been added to the waitlist.", "WHISPER", nil, msgName)
+		end
 	end
 	
-	local function RemovePlayer(self, name)
+	local function RemovePlayer(self, name, whispered)
+		if(GetNumRaidMembers() == 0) then
+                    EPGPWaitlist:Print("You must be in a raid to have a waitlist.")
+                    return
+		end
 		local name = name:lower()
 		local main = name -- Player to remove from waitlist
 		local msg = "" -- Message to be whispered/printed
@@ -62,7 +92,9 @@ do
 		end	
 		
 		-- Send messages
-		SendChatMessage(msg, "WHISPER", nil, name)
+		if(whispered) then
+			SendChatMessage(msg, "WHISPER", nil, name)
+		end
 		EPGPWaitlist:Print(msg)
 	end
 	
@@ -87,7 +119,7 @@ do
 		--	EP Award, it ignores the state of GuildStorage because "we know what we are doing"?
 		--	Since we are tagging this with the Mass EP Award, it should be fine to do the same.
 		for idx,player in pairs(players) do
-			if player.online or (player.lastUpdated - player.lastOnline < 300) then
+			if player.online or (player.lastUpdated - player.lastOnline < EPGPWaitlist.config.offlineTimeout) then
 				EPGP:IncEPBy(EPGPWaitlist:Capitalize(idx), reason, amount, true) -- Increment as a "mass" ep award
 				msg = msg .. " " .. EPGPWaitlist:Capitalize(idx) .. "," -- append the player name
 				awarded = true
@@ -112,6 +144,13 @@ do
 	
 	local function RemoveFromWaitlist(self, name)
 		players[name] = nil
+		if #EPGPWaitlist.config.waitlistedPlayers > 0 then
+			for idx,player in ipairs(EPGPWaitlist.config.waitlistedPlayers) do
+				if player == name then
+					tremove(EPGPWaitlist.config.waitlistedPlayers, idx) -- Remove player from saved variables
+				end
+			end
+		end
 	end
 	
 	local function List(self)
@@ -155,7 +194,8 @@ do
 	end
 	
 	local function RemoveAll(self)
-		players = {} -- Wipe the players table
+		wipe(players) -- Wipe the players table
+		wipe(EPGPWaitlist.config.waitlistedPlayers) -- Wipe the saved variables
 		EPGPWaitlist:Print("Waitlist has been wiped.")
 	end
 	

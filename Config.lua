@@ -1,6 +1,14 @@
 do
-    local db
-    local altRanks
+    local db, altRanks, waitlistedPlayers
+    
+    -- Default saved variables
+    local defaults = {
+	char = {
+	    offlineTimeout = 300,
+	    waitlistedPlayers = {},
+	    altRanks = {},
+	}
+    }
     
     local function AddAltRank(self, addRank)
 	addRank = tonumber(addRank)
@@ -30,21 +38,29 @@ do
 	return false
     end
     
+    local function SetOfflineTimeout(self, timeout)
+	db.char.offlineTimeout = timeout
+    end
+    
     function EPGPWaitlist:Config()
-        db = LibStub("AceDB-3.0"):New("EPGPWaitlistDB")
-        if(db.char.altRanks ~= nil) then
-	    altRanks = db.char.altRanks
+        db = LibStub("AceDB-3.0"):New("EPGPWaitlistDB", defaults)
+	
+	altRanks = db.char.altRanks
+	waitlistedPlayers = db.char.waitlistedPlayers
+	
+        if(#altRanks == 0) then
 	    EPGPWaitlist:Print("You have not configured an alt rank yet, please do so with /ewl addaltrank <rank>")
-	else
-	    altRanks = {}
 	end
         
     	local obj = {
             AddAltRank = AddAltRank,
             RemoveAltRank = RemoveAltRank,
-	    IsAltRank = IsAltRank
+	    IsAltRank = IsAltRank,
+	    SetOfflineTimeout = SetOfflineTimeout,
+	    offlineTimeout = db.char.offlineTimeout,
+	    waitlistedPlayers = waitlistedPlayers
     	}
-		
+
 	return obj
     end
 end
