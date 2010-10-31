@@ -70,13 +70,19 @@ do
 	end
 	
 	local function RemovePlayer(self, name, whispered)
-		if(GetNumRaidMembers() == 0) then
-                    EPGPWaitlist:Print("You must be in a raid to have a waitlist.")
-                    return
-		end
 		local name = name:lower()
 		local main = name -- Player to remove from waitlist
 		local msg = "" -- Message to be whispered/printed
+		
+		if(GetNumRaidMembers() == 0) then
+			EPGPWaitlist:Print("You must be in a raid to have a waitlist.")
+			return
+		elseif players[name] == nil then
+			if(whispered) then
+				SendChatMessage("You are not on the waitlist.", "WHISPER", nil, name)
+			end
+			return
+		end
 		
 		-- Check if player is an alt
 		if EPGPWaitlist.guildlist:IsAlt(name) then
@@ -95,7 +101,6 @@ do
 		if(whispered) then
 			SendChatMessage(msg, "WHISPER", nil, name)
 		end
-		EPGPWaitlist:Print(msg)
 	end
 	
 	function MassEPAward(self, event_name, names, reason, amount)
@@ -143,14 +148,18 @@ do
 	end
 	
 	local function RemoveFromWaitlist(self, name)
-		players[name] = nil
-		if #EPGPWaitlist.config.waitlistedPlayers > 0 then
-			for idx,player in ipairs(EPGPWaitlist.config.waitlistedPlayers) do
-				if player == name then
-					tremove(EPGPWaitlist.config.waitlistedPlayers, idx) -- Remove player from saved variables
+		if players[name] ~= nil then
+			players[name] = nil
+			if #EPGPWaitlist.config.waitlistedPlayers > 0 then
+				for idx,player in ipairs(EPGPWaitlist.config.waitlistedPlayers) do
+					if player == name then
+						tremove(EPGPWaitlist.config.waitlistedPlayers, idx) -- Remove player from saved variables
+					end
 				end
 			end
+			return true
 		end
+		return false
 	end
 	
 	local function List(self)
