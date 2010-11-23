@@ -22,7 +22,7 @@ do
 				end
 			-- Player is on an alt and on waitlist
 			elseif EPGPWaitlist.config:IsAltRank(rank) and EPGPWaitlist.waitlist:IsWaitlisted(note:lower()) and online then
-				EPGPWaitlist.waitlist:UpdatePlayerStatus(name:lower(), time, true, true)
+				EPGPWaitlist.waitlist:UpdatePlayerStatus(name:lower(), time, true, true, name)
 			end
 		end
 	end

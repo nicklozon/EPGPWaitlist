@@ -2,7 +2,7 @@
 ## Interface: 40000
 ## Title: EPGPWaitlist
 ## Description: Advanced waitlist addon for EPGP.
-## Version: 0.3-a2
+## Version: 0.3-b2
 ## SavedVariables: EPGPWaitlistDB
 
 embeds.xml

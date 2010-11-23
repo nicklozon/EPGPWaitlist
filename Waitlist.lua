@@ -208,9 +208,9 @@ do
 		EPGPWaitlist:Print("Waitlist has been wiped.")
 	end
 	
-	local function UpdatePlayerStatus(self, name, time, isOnline, isAlt)
+	local function UpdatePlayerStatus(self, name, time, isOnline, isAlt, altName)
 		if isAlt then
-			players[name]:updateOnlineTimeAlt(time, alt)
+			players[name]:updateOnlineTimeAlt(time, altName)
 		elseif isOnline then
 			players[name]:updateOnlineTime(time)
 		else
