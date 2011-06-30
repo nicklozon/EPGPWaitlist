@@ -1,9 +1,10 @@
 ## Author: Nick Lozon
-## Interface: 40000
+## Interface: 40200
 ## Title: EPGPWaitlist
 ## Description: Advanced waitlist addon for EPGP.
-## Version: 0.4-b
+## Version: 0.4-c
 ## SavedVariables: EPGPWaitlistDB
+## Dependencies: EPGP
 
 embeds.xml
 EPGPWaitlist.lua
