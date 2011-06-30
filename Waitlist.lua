@@ -55,7 +55,7 @@ do
 		
 		-- Add player to save variables if it doesnt exist already
 		local bool = false
-		for idx,player in ipairs(EPGPWaitlist.config.waitlistedPlayers, name) do
+		for idx,player in ipairs(EPGPWaitlist.config.waitlistedPlayers) do
 			if(player == name) then
 				bool = true
 			end

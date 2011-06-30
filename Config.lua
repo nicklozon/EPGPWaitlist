@@ -10,7 +10,7 @@ do
 	}
     }
     
-    -- Description:	Private function to check if an alt rank alread exists
+    -- Description:	Private function to check if an alt rank already exists
     -- Parameters:	Rank number counting up from 0
     -- Created:		01/05/2011
     local function HasAltRank(self, rankNum)
