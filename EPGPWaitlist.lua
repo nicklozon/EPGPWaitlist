@@ -53,7 +53,7 @@ do
             msg = msg:lower()
             
             if(msg == "waitlist add" or msg == "waitlist remove") then
-                if(GetNumRaidMembers() == 0) then
+                if(GetNumGroupMembers() == 0) then
                         SendChatMessage("There is currently no raid in progress.", "WHISPER", nil, name);
                         return
                 end
@@ -71,7 +71,7 @@ do
     end
     
     function EPGPWaitlist:RaidRosterUpdateEventHandler()
-        if(GetNumRaidMembers() > 0) then
+        if(GetNumGroupMembers() > 0) then
             raidlist:RaidRosterUpdate()
         else -- Not in a raid group, wipe waitlist
             waitlist:RemoveAll()

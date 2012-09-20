@@ -2,7 +2,7 @@ do
 	local players = {}
 	
 	local function AddPlayer(self, name, whispered)
-		if(GetNumRaidMembers() == 0) then
+		if(GetNumGroupMembers() == 0) then
                     EPGPWaitlist:Print("You must be in a raid to have a waitlist.")
                     return
 		end
@@ -74,7 +74,7 @@ do
 		local main = name -- Player to remove from waitlist
 		local msg = "" -- Message to be whispered/printed
 		
-		if(GetNumRaidMembers() == 0) then
+		if(GetNumGroupMembers() == 0) then
 			EPGPWaitlist:Print("You must be in a raid to have a waitlist.")
 			return
 		elseif players[name] == nil then
