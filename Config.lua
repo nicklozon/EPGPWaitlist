@@ -137,7 +137,7 @@ do
         end
 
         -- Check that the stored offlineTimeout variable is numeric
-        if(type(db.char.offlineTimeout) != "number") then
+        if(type(db.char.offlineTimeout) ~= "number") then
             db.char.offlineTimeout = 300
         end
 
