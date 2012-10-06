@@ -117,7 +117,7 @@ do
     --	Description:	Configure the offline timeout
     --	Parameters:	timeout - number in seconds
     local function SetOfflineTimeout(self, timeout)
-        if(type(timeout) != "number") then
+        if(type(timeout) ~= "number") then
             EPGPWaitlist:Print('Offline timeout value must be numeric! Defaulting to 300 second.')
             return
         end
