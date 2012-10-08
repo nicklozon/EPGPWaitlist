@@ -2,7 +2,7 @@
 ## Interface: 50001
 ## Title: EPGPWaitlist
 ## Description: Advanced waitlist addon for EPGP.
-## Version: 0.5-a4
+## Version: 0.5-a5
 ## SavedVariables: EPGPWaitlistDB
 ## Dependencies: EPGP
 

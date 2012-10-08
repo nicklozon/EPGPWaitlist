@@ -35,9 +35,14 @@ do
 
         -- Load stored waitlisted players
         if(GetNumGroupMembers() == 0) then
+            EPGPWaitlist:Print("Debug: You are in a group - loading waitlisted players.")
+            EPGPWaitlist:Print("Debug: There are " .. #config.waitlistedPlayers .. " on the waitlist.")
             for idx,player in ipairs(config.waitlistedPlayers) do
+                EPGPWaitlist:Print("Adding " .. player .. " to the waitlist.")
                 waitlist:AddPlayer(player)
             end
+        else
+            EPGPWaitlist:Print("Debug: You are not in a group.")
         end
 
         EPGPWaitlist:Print("EPGPWaitlist loaded!")
